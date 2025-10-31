@@ -1,4 +1,3 @@
-pip install openai
 import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
@@ -6,32 +5,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
-import base64
-
-# --- CONFIGURACIÓN DEL FONDO (Imagen Oceánica) ---
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-def set_background(png_file):
-    bin_str = get_base64_of_bin_file(png_file)
-    page_bg_img = f"""
-    <style>
-    .stApp {{
-        background-image: url("data:image/png;base64,{bin_str}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }}
-    </style>
-    """
-    st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# Llama a la función con tu imagen (asegúrate de tenerla en el mismo directorio que este .py)
-set_background("fondo_oceano.png")  # usa el nombre real de tu imagen
-
-# -----------------------------------------------------
 
 # App
 def predictDigit(image):
@@ -53,13 +26,15 @@ st.title('Reconocimiento de Dígitos escritos a mano')
 st.subheader("Dibuja el digito en el panel  y presiona  'Predecir'")
 
 # Add canvas component
+# Specify canvas parameters in application
 drawing_mode = "freedraw"
 stroke_width = st.slider('Selecciona el ancho de línea', 1, 30, 15)
-stroke_color = '#FFFFFF' 
+stroke_color = '#FFFFFF' # Set background color to white
 bg_color = '#000000'
 
+# Create a canvas component
 canvas_result = st_canvas(
-    fill_color="rgba(255, 165, 0, 0.3)",
+    fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
     stroke_width=stroke_width,
     stroke_color=stroke_color,
     background_color=bg_color,
@@ -68,6 +43,7 @@ canvas_result = st_canvas(
     key="canvas",
 )
 
+# Add "Predict Now" button
 if st.button('Predecir'):
     if canvas_result.image_data is not None:
         input_numpy_array = np.array(canvas_result.image_data)
@@ -85,4 +61,5 @@ st.sidebar.text("En esta aplicación se evalua ")
 st.sidebar.text("la capacidad de un RNA de reconocer") 
 st.sidebar.text("digitos escritos a mano.")
 st.sidebar.text("Basado en desarrollo de Vinay Uniyal")
-
+#st.sidebar.text("GitHub Repository")
+#st.sidebar.write("[GitHub Repo Link](https://github.com/Vinay2022/Handwritten-Digit-Recognition)")
