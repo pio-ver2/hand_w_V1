@@ -1,3 +1,4 @@
+pip install openai
 import tensorflow as tf
 from PIL import Image, ImageOps
 import numpy as np
@@ -84,3 +85,4 @@ st.sidebar.text("En esta aplicación se evalua ")
 st.sidebar.text("la capacidad de un RNA de reconocer") 
 st.sidebar.text("digitos escritos a mano.")
 st.sidebar.text("Basado en desarrollo de Vinay Uniyal")
+
