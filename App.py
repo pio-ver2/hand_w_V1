@@ -63,3 +63,16 @@ st.sidebar.text("digitos escritos a mano.")
 st.sidebar.text("Basado en desarrollo de Vinay Uniyal")
 #st.sidebar.text("GitHub Repository")
 #st.sidebar.write("[GitHub Repo Link](https://github.com/Vinay2022/Handwritten-Digit-Recognition)")
+
+# ==============================
+# CONFIGURACIÓN DE LA IMAGEN
+# ==============================
+st.sidebar.subheader("Configuración de Imagen")
+uploaded_image = st.file_uploader("Sube una imagen para probar el modelo", type=["png", "jpg", "jpeg"])
+
+if uploaded_image is not None:
+    st.image(uploaded_image, caption="Imagen cargada", use_column_width=False, width=200)
+    img = Image.open(uploaded_image)
+    if st.button("Predecir Imagen Cargada"):
+        res = predictDigit(img)
+        st.success(f"El dígito reconocido es: {res}")
