@@ -7,13 +7,12 @@ import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 import base64
 
-# ---- Función para convertir imagen a base64 (fondo personalizado) ----
+# --- CONFIGURACIÓN DEL FONDO (Imagen Oceánica) ---
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-# ---- Fondo oceánico ----
 def set_background(png_file):
     bin_str = get_base64_of_bin_file(png_file)
     page_bg_img = f"""
@@ -28,92 +27,60 @@ def set_background(png_file):
     """
     st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# ---- Cargar fondo ----
-set_background("/mnt/data/5f4f0614-fb31-4ae0-9933-0ebac983e6e6.png")
+# Llama a la función con tu imagen (asegúrate de tenerla en el mismo directorio que este .py)
+set_background("fondo_oceano.png")  # usa el nombre real de tu imagen
 
-# ---- Modelo de predicción ----
+# -----------------------------------------------------
+
+# App
 def predictDigit(image):
     model = tf.keras.models.load_model("model/handwritten.h5")
     image = ImageOps.grayscale(image)
-    img = image.resize((28, 28))
-    img = np.array(img, dtype='float32') / 255
+    img = image.resize((28,28))
+    img = np.array(img, dtype='float32')
+    img = img/255
     plt.imshow(img)
     plt.show()
-    img = img.reshape((1, 28, 28, 1))
-    pred = model.predict(img)
+    img = img.reshape((1,28,28,1))
+    pred= model.predict(img)
     result = np.argmax(pred[0])
     return result
 
-# ---- Configuración de la App ----
-st.set_page_config(page_title='🌊 Reconocimiento Oceánico de Dígitos 🐠', layout='wide')
+# Streamlit 
+st.set_page_config(page_title='Reconocimiento de Dígitos escritos a mano', layout='wide')
+st.title('Reconocimiento de Dígitos escritos a mano')
+st.subheader("Dibuja el digito en el panel  y presiona  'Predecir'")
 
-# ---- Estilo general ----
-st.markdown("""
-    <style>
-    h1, h2, h3, h4 {
-        color: #E0FFFF;
-        text-shadow: 1px 1px 2px #000;
-    }
-    .stButton>button {
-        background-color: #00CED1;
-        color: white;
-        border-radius: 10px;
-        border: none;
-        font-size: 18px;
-        padding: 8px 16px;
-    }
-    .stButton>button:hover {
-        background-color: #20B2AA;
-        transform: scale(1.05);
-        transition: 0.3s;
-    }
-    .css-1aumxhk {
-        background-color: rgba(0, 0, 50, 0.5);
-        border-radius: 10px;
-        padding: 10px;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# ---- Título ----
-st.title("🌊 Tablero Oceánico para Reconocimiento de Dígitos 🐚")
-st.subheader("Dibuja el dígito en el panel y presiona **'Predecir'**")
-
-# ---- Configuración del lienzo ----
+# Add canvas component
 drawing_mode = "freedraw"
-stroke_width = st.slider('✏️ Selecciona el ancho de línea', 1, 30, 15)
-stroke_color = '#FFFFFF'  # Blanco para contraste
-bg_color = '#001F3F'      # Azul profundo oceánico
+stroke_width = st.slider('Selecciona el ancho de línea', 1, 30, 15)
+stroke_color = '#FFFFFF' 
+bg_color = '#000000'
 
-# ---- Lienzo ----
 canvas_result = st_canvas(
-    fill_color="rgba(0, 255, 255, 0.3)",  # color agua
+    fill_color="rgba(255, 165, 0, 0.3)",
     stroke_width=stroke_width,
     stroke_color=stroke_color,
     background_color=bg_color,
-    height=250,
-    width=250,
-    drawing_mode=drawing_mode,
+    height=200,
+    width=200,
     key="canvas",
 )
 
-# ---- Botón de predicción ----
-if st.button('🌊 Predecir Dígito'):
+if st.button('Predecir'):
     if canvas_result.image_data is not None:
         input_numpy_array = np.array(canvas_result.image_data)
-        input_image = Image.fromarray(input_numpy_array.astype('uint8'), 'RGBA')
+        input_image = Image.fromarray(input_numpy_array.astype('uint8'),'RGBA')
         input_image.save('prediction/img.png')
         img = Image.open("prediction/img.png")
         res = predictDigit(img)
-        st.success(f'🐬 El dígito reconocido es: **{res}**')
+        st.header('El Digito es : ' + str(res))
     else:
-        st.warning('Por favor dibuja un dígito en el lienzo.')
+        st.header('Por favor dibuja en el canvas el digito.')
 
-# ---- Sidebar ----
-st.sidebar.title("🌴 Acerca de:")
-st.sidebar.markdown("""
-**Aplicación Oceánica de Reconocimiento de Dígitos**
-- Utiliza una red neuronal convolucional (CNN)
-- Entrenada con el dataset **MNIST**
-- Fondo inspirado en el **océano** 🌊  
-""")
+# Add sidebar
+st.sidebar.title("Acerca de:")
+st.sidebar.text("En esta aplicación se evalua ")
+st.sidebar.text("la capacidad de un RNA de reconocer") 
+st.sidebar.text("digitos escritos a mano.")
+st.sidebar.text("Basado en desarrollo de Vinay Uniyal")
