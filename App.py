@@ -2,7 +2,7 @@ import os
 import streamlit as st
 import base64
 import platform  # Asegúrate de importar platform correctamente
-from openai import OpenAI
+import openai  # Corregido: Importamos la biblioteca openai correctamente
 
 # Estilo visual con colores oceánicos personalizados
 st.markdown("""
@@ -67,8 +67,8 @@ os.environ['OPENAI_API_KEY'] = ke
 # Recuperar la clave de API de OpenAI
 api_key = os.environ['OPENAI_API_KEY']
 
-# Inicializar cliente de OpenAI
-client = OpenAI(api_key=api_key)
+# Configuración de la API de OpenAI
+openai.api_key = api_key  # Ahora se usa openai.api_key
 
 # Cargar archivo de imagen
 uploaded_file = st.file_uploader("📥 **Sube una imagen**", type=["jpg", "png", "jpeg"])
@@ -126,7 +126,7 @@ if uploaded_file is not None and api_key and analyze_button:
             # Stream de la respuesta
             full_response = ""
             message_placeholder = st.empty()
-            for completion in client.chat.completions.create(
+            for completion in openai.ChatCompletion.create(  # CORREGIDO: openai.ChatCompletion.create
                 model="gpt-4", messages=messages,   
                 max_tokens=1200, stream=True
             ):
