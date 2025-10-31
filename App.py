@@ -1,65 +1,146 @@
-import tensorflow as tf
-from PIL import Image, ImageOps
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+import os
 import streamlit as st
-from streamlit_drawable_canvas import st_canvas
+import base64
+import platform  # Asegúrate de importar platform correctamente
+from openai import OpenAI
 
-# App
-def predictDigit(image):
-    model = tf.keras.models.load_model("model/handwritten.h5")
-    image = ImageOps.grayscale(image)
-    img = image.resize((28,28))
-    img = np.array(img, dtype='float32')
-    img = img/255
-    plt.imshow(img)
-    plt.show()
-    img = img.reshape((1,28,28,1))
-    pred= model.predict(img)
-    result = np.argmax(pred[0])
-    return result
+# Estilo visual con colores oceánicos personalizados
+st.markdown("""
+    <style>
+        body {
+            background-color: #003366;  /* Azul marino profundo */
+            color: #ffffff;  /* Texto blanco */
+        }
+        .stTitle {
+            color: #00bcd4;  /* Azul océano claro para el título */
+        }
+        .stSubheader {
+            color: #4caf50;  /* Verde agua marina para los subtítulos */
+        }
+        .stButton>button {
+            background-color: #004d40;  /* Botones de color verde mar */
+            color: white;  /* Texto blanco en los botones */
+        }
+        .stImage>div>img {
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .stSidebar {
+            background-color: #80deea;  /* Azul claro para la barra lateral */
+        }
+        .stTextInput>div>div>input {
+            background-color: #4db6ac;  /* Fondo de los campos de texto en verde suave */
+        }
+        .stTextArea>div>div>textarea {
+            background-color: #4db6ac;  /* Fondo del área de texto */
+        }
+        .stMarkdown {
+            color: #ffffff;  /* Texto de Markdown en blanco */
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Streamlit 
-st.set_page_config(page_title='Reconocimiento de Dígitos escritos a mano', layout='wide')
-st.title('Reconocimiento de Dígitos escritos a mano')
-st.subheader("Dibuja el digito en el panel  y presiona  'Predecir'")
+# Título de la aplicación con emojis
+st.title("🌊 **Análisis de Imagen: Inteligencia Artificial en Acción** 🤖")
 
-# Add canvas component
-# Specify canvas parameters in application
-drawing_mode = "freedraw"
-stroke_width = st.slider('Selecciona el ancho de línea', 1, 30, 15)
-stroke_color = '#FFFFFF' # Set background color to white
-bg_color = '#000000'
+# Mostrar la versión de Python
+st.write("👨‍💻 **Versión de Python**:", platform.python_version())
 
-# Create a canvas component
-canvas_result = st_canvas(
-    fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
-    stroke_width=stroke_width,
-    stroke_color=stroke_color,
-    background_color=bg_color,
-    height=200,
-    width=200,
-    key="canvas",
-)
+# Cargar y mostrar imagen relacionada con la tecnología oceánica
+try:
+    image = Image.open('Chat_pdf.png')  # Asegúrate de que esta imagen esté disponible
+    st.image(image, width=350)
+except Exception as e:
+    st.warning(f"⚠️ No se pudo cargar la imagen: {e}")
 
-# Add "Predict Now" button
-if st.button('Predecir'):
-    if canvas_result.image_data is not None:
-        input_numpy_array = np.array(canvas_result.image_data)
-        input_image = Image.fromarray(input_numpy_array.astype('uint8'),'RGBA')
-        input_image.save('prediction/img.png')
-        img = Image.open("prediction/img.png")
-        res = predictDigit(img)
-        st.header('El Digito es : ' + str(res))
-    else:
-        st.header('Por favor dibuja en el canvas el digito.')
+# Barra lateral con descripción
+with st.sidebar:
+    st.subheader("🌊 **Este agente te ayudará a realizar análisis sobre la imagen cargada**")
+    st.write("""
+    Sube una imagen y pregunta sobre su contenido. El agente procesará la imagen usando IA y generará respuestas.
+    """)
 
-# Add sidebar
-st.sidebar.title("Acerca de:")
-st.sidebar.text("En esta aplicación se evalua ")
-st.sidebar.text("la capacidad de un RNA de reconocer") 
-st.sidebar.text("digitos escritos a mano.")
-st.sidebar.text("Basado en desarrollo de Vinay Uniyal")
-#st.sidebar.text("GitHub Repository")
-#st.sidebar.write("[GitHub Repo Link](https://github.com/Vinay2022/Handwritten-Digit-Recognition)")
+# Clave API de OpenAI
+ke = st.text_input('🔑 **Ingresa tu Clave de OpenAI**', type="password")
+os.environ['OPENAI_API_KEY'] = ke
+
+# Recuperar la clave de API de OpenAI
+api_key = os.environ['OPENAI_API_KEY']
+
+# Inicializar cliente de OpenAI
+client = OpenAI(api_key=api_key)
+
+# Cargar archivo de imagen
+uploaded_file = st.file_uploader("📥 **Sube una imagen**", type=["jpg", "png", "jpeg"])
+
+if uploaded_file:
+    # Mostrar imagen cargada
+    with st.expander("Imagen cargada", expanded=True):
+        st.image(uploaded_file, caption=uploaded_file.name, use_container_width=True)
+
+# Toggle para mostrar detalles adicionales
+show_details = st.checkbox("🔍 **Pregunta algo específico sobre la imagen**", value=False)
+
+if show_details:
+    # Entrada de texto para detalles adicionales, solo si se activa el toggle
+    additional_details = st.text_area(
+        "📝 **Añade contexto sobre la imagen aquí**:",
+        disabled=not show_details
+    )
+
+# Botón para activar el análisis
+analyze_button = st.button("🔍 **Analizar Imagen**", type="secondary")
+
+# Verificar si se cargó una imagen, si la clave de API está disponible, y si se presionó el botón
+if uploaded_file is not None and api_key and analyze_button:
+
+    with st.spinner("🔄 **Analizando...**"):
+        # Codificar la imagen
+        base64_image = encode_image(uploaded_file)
+    
+        prompt_text = "Describe lo que ves en la imagen en español"
+    
+        if show_details and additional_details:
+            prompt_text += (
+                f"\n\n**Contexto adicional proporcionado por el usuario:**\n{additional_details}"
+            )
+    
+        # Crear la carga útil para la solicitud - CORREGIDO FORMATO
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt_text},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    },
+                ],
+            }
+        ]
+    
+        # Hacer la solicitud a la API de OpenAI
+        try:
+            # Stream de la respuesta
+            full_response = ""
+            message_placeholder = st.empty()
+            for completion in client.chat.completions.create(
+                model="gpt-4", messages=messages,   
+                max_tokens=1200, stream=True
+            ):
+                if completion.choices[0].delta.content is not None:
+                    full_response += completion.choices[0].delta.content
+                    message_placeholder.markdown(full_response + "▌")
+            # Actualización final después de que termine el stream
+            message_placeholder.markdown(full_response)
+    
+        except Exception as e:
+            st.error(f"❌ **Ocurrió un error**: {e}")
+else:
+    # Advertencias si se requieren acciones del usuario
+    if not uploaded_file and analyze_button:
+        st.warning("⚠️ **Por favor sube una imagen.**")
+    if not api_key:
+        st.warning("⚠️ **Por favor ingresa tu clave de API.**")
