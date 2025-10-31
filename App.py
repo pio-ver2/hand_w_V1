@@ -20,7 +20,7 @@ st.markdown("""
             color: #80deea;  /* Azul claro para los subtítulos */
         }
         .stButton>button {
-            background-color: #00796b;  /* Botones de color verde mar */
+            background-color: #00796b;  /* Botones de color verde océano */
             color: white;  /* Texto blanco en los botones */
         }
         .stImage>div>img {
@@ -70,14 +70,14 @@ st.subheader("🖊️ **Dibuja el dígito en el panel y presiona 'Predecir'**")
 drawing_mode = "freedraw"
 stroke_width = st.slider('🔲 **Selecciona el ancho de línea**', 1, 30, 15)
 stroke_color = '#FFFFFF'  # Set background color to white
-bg_color = '#80deea'  # Azul claro para el fondo
+bg_color = '#000000'  # Fondo negro para el tablero
 
 # Create a canvas component
 canvas_result = st_canvas(
     fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
     stroke_width=stroke_width,
     stroke_color=stroke_color,
-    background_color=bg_color,
+    background_color=bg_color,  # Fondo negro para el canvas
     height=200,
     width=200,
     key="canvas",
