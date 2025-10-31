@@ -10,7 +10,7 @@ from streamlit_drawable_canvas import st_canvas
 st.markdown("""
     <style>
         body {
-            background-color: #004d40;  /* Azul océano profundo */
+            background-color: #003366;  /* Azul marino profundo */
             color: #ffffff;  /* Texto blanco */
         }
         .stTitle {
@@ -20,7 +20,7 @@ st.markdown("""
             color: #00bcd4;  /* Azul turquesa para los subtítulos */
         }
         .stButton>button {
-            background-color: #00796b;  /* Botones en verde mar */
+            background-color: #00796b;  /* Botones de color verde océano */
             color: white;  /* Texto blanco en los botones */
         }
         .stImage>div>img {
@@ -38,6 +38,10 @@ st.markdown("""
         }
         .stMarkdown {
             color: #ffffff;  /* Texto de Markdown en blanco */
+        }
+        /* Barra lateral con texto en azul oscuro */
+        .stSidebar .stText {
+            color: #003366; /* Azul oscuro para el texto en la barra lateral */
         }
     </style>
 """, unsafe_allow_html=True)
