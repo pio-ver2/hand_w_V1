@@ -8,17 +8,17 @@ from openai import OpenAI
 st.markdown("""
     <style>
         body {
-            background-color: #003366;  /* Azul marino profundo */
+            background-color: #004d40;  /* Azul marino profundo */
             color: #ffffff;  /* Texto blanco */
         }
         .stTitle {
-            color: #00bcd4;  /* Azul océano claro para el título */
+            color: #80deea;  /* Azul océano claro para el título */
         }
         .stSubheader {
             color: #4caf50;  /* Verde agua marina para los subtítulos */
         }
         .stButton>button {
-            background-color: #004d40;  /* Botones de color verde mar */
+            background-color: #00796b;  /* Botones de color verde océano */
             color: white;  /* Texto blanco en los botones */
         }
         .stImage>div>img {
